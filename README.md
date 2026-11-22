@@ -1,6 +1,6 @@
-# Don't Starve Together server with caves for Apple Silicon Macs
+# Fix Don't Starve Together caves lag and teleporting back on Apple Silicon Macs
 
-Runs the official **Linux** dedicated server of Don't Starve Together (surface + caves) in Docker on an Apple Silicon Mac.
+If your character in Don't Starve Together (DST) keeps teleporting back, rubber-banding or lagging in a world with caves on a Mac with M1, M2, M3 or M4, this is a fix. It runs the official **Linux** dedicated server of DST (surface + caves) in Docker on the same Mac, and the teleports are gone.
 
 ## The problem
 
