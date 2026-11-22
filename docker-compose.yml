@@ -1,0 +1,12 @@
+services:
+  dst:
+    build: .
+    platform: linux/amd64
+    network_mode: host
+    environment:
+      CLUSTER: ${CLUSTER:-Cluster_1}
+    volumes:
+      - ./data:/data
+      - ./mods:/config/mods:ro
+    stop_grace_period: 90s
+    restart: "no"

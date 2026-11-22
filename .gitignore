@@ -1,0 +1,7 @@
+# Worlds, tokens and logs are personal
+data/
+.env
+
+# Workshop mods belong to their authors, copy your own (see README)
+mods/*
+!mods/.gitkeep
