@@ -47,13 +47,15 @@ With Docker Desktop, turn on two settings first:
 
 ## Playing
 
-In the game main menu, press `~` to open the console and run:
+Open "Browse Games" in the game and join the world from the "LAN" tab. The world must be LAN-only (`lan_only_cluster = true` in `cluster.ini`), a public world shows up only in the main list.
+
+If the world does not show up (for example, right after a quick restart), press `~` in the main menu to open the console and connect directly:
 
 ```
 c_connect("127.0.0.1", 10999)
 ```
 
-Do not host the same world from the in-game menu while the container is running. Both use the same ports.
+**While the container is running, you cannot host any world from the in-game menu** ("Host Game"). The container uses the same ports, and the game shows "Dedicated server failed to start". Run `docker compose down` first.
 
 ## Commands
 
@@ -67,7 +69,7 @@ Server logs are also in `data/DoNotStarveTogether/<cluster>/Master/server_log.tx
 
 ## Switching worlds
 
-Only one world can run at a time, because all worlds use the same ports. Put every world in `data/DoNotStarveTogether/` (setup steps 1–6, the same `cluster_token.txt` works for all of them) and switch like this:
+Only one world can run in the container at a time. Put every world in `data/DoNotStarveTogether/` (setup steps 1–6, the same `cluster_token.txt` works for all of them) and switch like this:
 
 ```
 docker compose down
