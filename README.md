@@ -2,11 +2,43 @@
 
 Runs the official **Linux** dedicated server of Don't Starve Together (surface + caves) in Docker on an Apple Silicon Mac.
 
-## Why
+## The problem
 
-On Apple Silicon Macs, a world with caves started from the in-game "Host Game" menu runs the macOS build of the dedicated server. On recent macOS versions it often rubber-bands the player: the character is pulled back to a previous position every minute or so. Worlds without caves are fine, and so is the same world hosted on Windows or Linux. See the Klei bug tracker: [periodic rubber-banding on macOS, caves worlds only](https://forums.kleientertainment.com/klei-bug-tracker/dont-starve-together/periodic-rubber-banding-position-rewind-on-macos-265-tahoe-caves-worlds-only-r52719/).
+You host a Don't Starve Together world **with caves** on an Apple Silicon Mac (M1, M2, M3, M4), and your character keeps teleporting back: you walk, and every minute or so you are pulled back to where you were a moment ago (rubber-banding, position rewind). Turning off movement prediction stops the teleports, but then the character moves in jerks. The same world without caves is fine, and the same world hosted on Windows or on a Linux server is fine too.
 
-This project runs the Linux build of the server in an x86_64 container (through Rosetta) instead, and the rubber-banding is gone.
+The game log (`~/Documents/Klei/DoNotStarveTogether/client_log.txt`) shows lines like this every time it happens:
+
+```
+Locomotor: Waiting for server...
+Locomotor: Buffering...
+Locomotor: Reset
+```
+
+It is a known bug: [periodic rubber-banding on macOS, caves worlds only](https://forums.kleientertainment.com/klei-bug-tracker/dont-starve-together/periodic-rubber-banding-position-rewind-on-macos-265-tahoe-caves-worlds-only-r52719/).
+
+## Why it happens only on a Mac, and only with caves
+
+Without caves, the game you play in is also the server, in one process. Your character is moved directly, and nothing goes over the network.
+
+With caves, the game starts two separate dedicated servers in the background, one for the surface and one for the caves, and your own game connects to the surface server over the network like any other player. From then on your movement is predicted on your side and confirmed by the server. When the server does not answer in time, the game throws the prediction away and puts your character back where the server last saw it. That is the teleport.
+
+On a Mac these background servers are the macOS build of the dedicated server, and it does not answer in time every minute or so. The game is built for Intel, so on Apple Silicon it runs through Rosetta, but Rosetta alone is not the cause: the Linux build of the same server, also running through Rosetta in this container, has no such pauses. So the problem is in the macOS build of the server (Klei also fixed a similar bug once before, on macOS 15.4, and it came back).
+
+This project runs the Linux build of the server in an x86_64 container instead, and the rubber-banding is gone.
+
+## What was tried and did not help
+
+All of this was tested on an M4 Pro Mac with macOS 26 before this project:
+
+- **Turning off movement prediction** (Options → Settings → Movement Prediction). No teleports, but the character moves in jerks: without prediction it only moves when a server update arrives, 15 times a second.
+- **Raising the network tick rate to 60** with `tick_rate = 60` in `cluster.ini`. The "Host Game" menu rewrites `cluster.ini` every time it starts a world and drops this setting.
+- **Locking `cluster.ini` against writing**, so the menu keeps `tick_rate`. The menu then fails with "Dedicated server failed to start".
+- **A client mod that adds `tick_rate` to the settings the menu sends to the server.** The game writes only the settings from its own menu and ignores the rest.
+- **Starting the macOS servers with a script and `-tick 60`.** The tick rate really becomes 60, but with movement prediction on, the teleports stay.
+- **Raising the priority of the server processes** with `taskpolicy` (out of background mode, lowest latency tier). No change.
+- **Turning off heavy server mods** (Global Positions). No change.
+
+Not tried, because it would not help: Wine or CrossOver also translate the Windows server through Rosetta, and full x86 emulators (UTM/QEMU) are much slower than Rosetta.
 
 ## Requirements
 
