@@ -10,9 +10,14 @@ This project runs the Linux build of the server in an x86_64 container (through 
 
 ## Requirements
 
-- An Apple Silicon Mac with [OrbStack](https://orbstack.dev) (or Docker Desktop with Rosetta enabled).
+- An Apple Silicon Mac with [OrbStack](https://orbstack.dev) (recommended, tested, works without extra settings) or Docker Desktop (not tested).
 - Don't Starve Together installed through Steam.
 - About 5 GB of free disk space for the image.
+
+With Docker Desktop, turn on two settings first:
+
+- **Rosetta:** Settings → General → "Use Rosetta for x86_64/amd64 emulation on Apple Silicon" (needs the Apple Virtualization framework). Without it the server runs under QEMU and is much slower.
+- **Host networking:** Settings → Resources → Network → "Enable host networking". Without it the game cannot reach the server on `127.0.0.1`.
 
 ## Setup
 
@@ -59,6 +64,36 @@ docker compose logs -f    # follow the server output
 ```
 
 Server logs are also in `data/DoNotStarveTogether/<cluster>/Master/server_log.txt` and `.../Caves/server_log.txt`.
+
+## Switching worlds
+
+Only one world can run at a time, because all worlds use the same ports. Put every world in `data/DoNotStarveTogether/` (setup steps 1–6, the same `cluster_token.txt` works for all of them) and switch like this:
+
+```
+docker compose down
+# set CLUSTER=Cluster_<N> in .env
+docker compose up -d
+```
+
+All mods live in the shared `mods/` folder. Each world loads only the mods enabled in its own `modoverrides.lua`.
+
+## Saves and rollback
+
+The server saves the world at the start of every in-game day and when the container stops. By default it keeps the last 6 saves. To keep more, add this to the `[MISC]` section of `cluster.ini` and restart:
+
+```
+max_snapshots = 20
+```
+
+To roll back, join the world as an admin (see setup step 5), press `~`, press Ctrl until the console says `Remote`, and run:
+
+```
+c_rollback(1)
+```
+
+`1` goes back one save (about one day), `3` goes back three. The surface and the caves roll back together, and players reconnect automatically. The "Rollback" button in the in-game host menu does not work for this server.
+
+For a full backup, stop the container and copy the `data` folder. To restore it, stop the container and put the folder back.
 
 ## Game updates
 
