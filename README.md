@@ -47,13 +47,13 @@ With Docker Desktop, turn on two settings first:
 
 ## Playing
 
-Open "Browse Games" in the game and join the world from the "LAN" tab. The world must be LAN-only (`lan_only_cluster = true` in `cluster.ini`), a public world shows up only in the main list.
-
-If the world does not show up (for example, right after a quick restart), press `~` in the main menu to open the console and connect directly:
+In the game main menu, press `~` to open the console and connect:
 
 ```
 c_connect("127.0.0.1", 10999)
 ```
+
+Do not rely on the "LAN" tab in "Browse Games". On a Mac with OrbStack network bridges or a VPN, the game often cannot send its LAN search broadcast, so the world does not show up there even though the server is running.
 
 **While the container is running, you cannot host any world from the in-game menu** ("Host Game"). The container uses the same ports, and the game shows "Dedicated server failed to start". Run `docker compose down` first.
 
